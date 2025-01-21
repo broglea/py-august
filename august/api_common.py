@@ -53,6 +53,8 @@ API_GET_LOCK_STATUS_URL = API_BASE_URL + "/locks/{lock_id}/status"
 API_GET_PINS_URL = API_BASE_URL + "/locks/{lock_id}/pins"
 API_LOCK_URL = API_BASE_URL + "/remoteoperate/{lock_id}/lock"
 API_UNLOCK_URL = API_BASE_URL + "/remoteoperate/{lock_id}/unlock"
+API_SET_PIN_URL = API_BASE_URL + "/locks/{lock_id}/users/{user_id}/pin"
+API_SYNC_PINS_URL = API_BASE_URL + "/locks/{lock_id}/pins/sync"
 
 
 def _api_headers(access_token=None):
@@ -234,6 +236,25 @@ class ApiCommon:
         return {
             "method": "get",
             "url": API_GET_PINS_URL.format(lock_id=lock_id),
+            "access_token": access_token,
+        }
+
+    def _build_set_pin_for_user_request(self, access_token, lock_id, user_id, pin):
+        return {
+            "method": "put",
+            "url": API_SET_PIN_URL.format(lock_id=lock_id, user_id=user_id),
+            "access_token": access_token,
+            "json": {
+                "pin": str(pin),
+                "state": "update",
+                "action": "intent",
+            },
+        }
+
+    def _build_sync_pins_request(self, access_token, lock_id):
+        return {
+            "method": "put",
+            "url": API_SYNC_PINS_URL.format(lock_id=lock_id),
             "access_token": access_token,
         }
 

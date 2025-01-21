@@ -4,8 +4,6 @@ import json
 import logging
 import time
 
-from requests import Session, request
-from requests.exceptions import HTTPError
 from august.api_common import (
     API_LOCK_URL,
     API_RETRY_ATTEMPTS,
@@ -23,6 +21,8 @@ from august.doorbell import DoorbellDetail
 from august.exceptions import AugustApiHTTPError
 from august.lock import LockDetail, determine_door_state, determine_lock_status
 from august.pin import Pin
+from requests import Session, request
+from requests.exceptions import HTTPError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -138,6 +138,16 @@ class Api(ApiCommon):
         ).json()
 
         return [Pin(pin_json) for pin_json in json_dict.get("loaded", [])]
+
+    def set_pin_for_user(self, access_token, lock_id, user_id, pin):
+        self._dict_to_api(
+            self._build_set_pin_for_user_request(access_token, lock_id, user_id, pin)
+        ).json()
+
+        sync_pins_resp = self._dict_to_api(
+            self._build_sync_pins_request(access_token, lock_id)
+        ).json()
+        return sync_pins_resp
 
     def _call_lock_operation(self, url_str, access_token, lock_id):
         return self._dict_to_api(
